@@ -62,7 +62,7 @@ try:
     early_stop = EarlyStopping(monitor='loss',
                                mode='min',
                                verbose=1,
-                               patience=2-00)
+                               patience=200)
     
     #create a checkpoint callback
     filepath="/dltraining/checkpoints/"
