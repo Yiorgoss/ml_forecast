@@ -1,28 +1,24 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from pathlib import Path
 import os
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import r2_score
 
-import tensorflow
+from keras.models import Sequential
+from keras.optimizers import Adam
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
+from keras.layers import LSTM
+from keras.layers import TimeDistributed
+from keras.layers import RepeatVector
+from keras.layers import Dense
 
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import TimeDistributed
-from tensorflow.keras.layers import RepeatVector
-from tensorflow.keras.layers import Dense
-
-from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.callbacks import CSVLogger
+from keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
+from keras.callbacks import CSVLogger
 
 
-read the train/test files
+#read the train/test files
 train_x = np.genfromtxt('/dltraining/datasets/train_x.csv', delimiter=',')
 train_y = np.genfromtxt('/dltraining/datasets/train_y.csv', delimiter=',')
 test_x = np.genfromtxt('/dltraining/datasets/test_x.csv', delimiter=',')
@@ -37,25 +33,27 @@ test_x = test_x.reshape( test_rows, 1, test_cols)
 test_y = test_y.reshape(test_rows, 1)
 
 # define parameters
-epochs = 1000
+epochs = 10000
 batch_size, features, timesteps = rows, cols, rows
 
 #if a model checkpoint does not exist
 #then load it and continue from there
-checkpoint = Path("/dltraining/checkpoints/best_checkpoint.hdf5")
-if checkpoint.is_file():
+try:
+    _ = open('/dltraining/checkpoints/best_checkpoint.hdf5', 'r') # file exists
+
+
     print("model from checkpoint")
-    # file exists
     # define model
     model = Sequential()
 
-    model.add(LSTM(200, activation='relu', input_shape=(1, features)))
+    model.add(LSTM(400, activation='relu', input_shape=(1, features)))
 
     model.add(RepeatVector(1))
 
-    model.add(LSTM(200, activation='relu', return_sequences=True))
+    model.add(LSTM(400, activation='relu', return_sequences=True))
+    model.add(LSTM(400, activation='relu', return_sequences=True))
 
-    model.add(TimeDistributed(Dense(200, activation='relu')))
+    model.add(TimeDistributed(Dense(400, activation='relu')))
     model.add(TimeDistributed(Dense(1)))
 
     model.compile(loss='mse', optimizer='adam')
@@ -64,7 +62,7 @@ if checkpoint.is_file():
     early_stop = EarlyStopping(monitor='loss',
                                mode='min',
                                verbose=1,
-                               patience=20)
+                               patience=2-00)
     
     #create a checkpoint callback
     filepath="/dltraining/checkpoints/"
@@ -90,17 +88,18 @@ if checkpoint.is_file():
               batch_size=batch_size,
               verbose=0,
               callbacks=callbacks_list)
-else:
+except FileNotFoundError:
     print("From Main")
     model = Sequential()
 
-    model.add(LSTM(200, activation='relu', input_shape=(1, features)))
+    model.add(LSTM(400, activation='relu', input_shape=(1, features)))
 
     model.add(RepeatVector(1))
 
-    model.add(LSTM(200, activation='relu', return_sequences=True))
+    model.add(LSTM(400, activation='relu', return_sequences=True))
+    model.add(LSTM(400, activation='relu', return_sequences=True))
 
-    model.add(TimeDistributed( Dense(200, activation='relu')))
+    model.add(TimeDistributed( Dense(400, activation='relu')))
     model.add(TimeDistributed( Dense(1, activation='relu')))
 
     model.compile( loss='mse', optimizer='adam')
@@ -109,7 +108,7 @@ else:
     early_stop = EarlyStopping(monitor='loss',
                                mode='min',
                                verbose=1,
-                               patience=20)
+                               patience=200)
     
     #create a checkpoint callback
     filepath="/dltraining/checkpoints/"
@@ -131,11 +130,4 @@ else:
               verbose=0, 
               callbacks=callbacks_list)
 
-pred_y = model.predict(test_x)
-
-# plt.figure()
-# plt.plot(test_y.reshape(test_y.shape[0], 1))
-# plt.plot(pred_y.reshape(pred_y.shape[0], 1))
-
-# plt.savefig('/dltraining/encoder-decoder.jpeg', format="jpeg", dpi=96)
 

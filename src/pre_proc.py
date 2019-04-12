@@ -27,6 +27,8 @@ def to_single_csv(path="/dltraining/datasets/Stocks/",
         stock = pd.read_csv(file, usecols=[0,4])[-1:-n_days:-1]
         stock = stock[-1::-1]
 
+        count = count + 1
+        print(count," / 4195", end="\r")
         #stock ticker name fom file path
         ticker = file.split('/')[4].split('.')[0]
         
@@ -52,8 +54,8 @@ def to_single_csv(path="/dltraining/datasets/Stocks/",
 def nan_fill(df):
     #first fill missing values with next available day value
     #next previous available day value any remaining
-    df.fillna(method='bfill')
-    df.fillna(method='ffill')
+    df.fillna(method='bfill', inplace=True)
+    df.fillna(method='ffill', inplace=True)
 
     return df
 
@@ -73,7 +75,9 @@ def corr_with_aapl(df):
     #pearsons correlation between different companies
     #only interested in the highest correlated companies wioth apple
 
-    co = df.corr()
+    print("correlation between columns")
+    co = df.corr().loc['aapl'].sort_values(ascending=False)
+
     #keep 10% most correlated stocks
     n = int(len(df.columns)*9/10)
     drop_cols = co.tail(n).index.values
@@ -88,7 +92,12 @@ def preproc_main(df):
     
     n_features = len(col_names)
     n_seq = len(date_index)
+
+    df = nan_fill(df)
+
     #scale 
+    col_names = df.columns.values
+    date_index = df.index.values
     scaler = MinMaxScaler(feature_range=[-1,1])
     scaled_data = scaler.fit_transform(df)
     
@@ -115,22 +124,34 @@ def preproc_main(df):
 
 def x_y_split(df):
     #split for neural network testing
+
+    print("x-y split")
     df_y = df['aapl'].shift(1).dropna()
     df_x = df.drop(df.tail(1).index.values)
     return df_x, df_y
 
 def test_train_split(df):
     #testing will be over 30 trading days
+
+    print("test train split")
     test = df[-1:-32:-1]
     test = test.iloc[-1::-1]
     train = df.drop(df.tail(31).index, axis=0)
 
     return train, test
 
-to_single_csv()
+print("starting to single file")
+#to_single_csv()
 
+print("pre processing main")
 n_days = 1000
-data = pd.read_csv("/dltraining/datasets/single_file.csv", index_col=0)[-1:-n_days:-1]
+
+data = pd.read_csv("/dltraining/datasets/single_file.csv", infer_datetime_format=True, index_col=[0])[-1:-n_days:-1]
+data = data[-1::-1]
+
+data = nan_fill(data)
 data = data[-1::-1]
 
 preproc_main(data)
+
+print("done, please run Enc_Dec_LSTM.py")

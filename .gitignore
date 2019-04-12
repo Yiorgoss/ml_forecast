@@ -1,3 +1,4 @@
 *.pem
+*.out
 bakup
 *.ipynb
