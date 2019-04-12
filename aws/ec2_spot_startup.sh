@@ -44,11 +44,12 @@ if [ $VOLUME_ID ]; then
 		cd /home/ubuntu/
 
 		# Get training code
-		git clone https://github.com/Yiorgoss/AWS-test.git
-		chown -R ubuntu: AWS-test 
-		cd AWS-test
+		git clone https://github.com/Yiorgoss/ml_forecast.git
+		chown -R ubuntu: ml_forecast 
+		cd ml_forecast
 
-        sudo -H -u ubuntu bash -c "sh startup.sh"
+        sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/actiavte tensorflow_p36; python pre_proc.py; python
+        Enc_Dec_LSTM.py"
 		# Initiate training using the tensorflow_36 conda environment
 		#sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p36; python ec2_spot_keras_training.py"
 fi
