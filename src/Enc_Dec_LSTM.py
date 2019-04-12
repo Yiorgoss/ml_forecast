@@ -23,10 +23,10 @@ from tensorflow.keras.callbacks import CSVLogger
 
 
 read the train/test files
-train_x = np.genfromtxt('dltraining/datasets/train_x.csv', delimiter=',')
-train_y = np.genfromtxt('dl/training/datasets/train_y.csv', delimiter=',')
-test_x = np.genfromtxt('dltraining/datasets/test_x.csv', delimiter=',')
-test_y = np.genfromtxt('dltraining/datasets/test_y.csv', delimiter=',')
+train_x = np.genfromtxt('/dltraining/datasets/train_x.csv', delimiter=',')
+train_y = np.genfromtxt('/dltraining/datasets/train_y.csv', delimiter=',')
+test_x = np.genfromtxt('/dltraining/datasets/test_x.csv', delimiter=',')
+test_y = np.genfromtxt('/dltraining/datasets/test_y.csv', delimiter=',')
 
 rows, cols = train_x.shape[0],  train_x.shape[1]
 test_rows, test_cols = test_x.shape[0], test_x.shape[1]
@@ -42,7 +42,7 @@ batch_size, features, timesteps = rows, cols, rows
 
 #if a model checkpoint does not exist
 #then load it and continue from there
-checkpoint = Path("/dltraining/checkpoint/best_checkpoint.hdf5")
+checkpoint = Path("/dltraining/checkpoints/best_checkpoint.hdf5")
 if checkpoint.is_file():
     print("model from checkpoint")
     # file exists
@@ -112,7 +112,7 @@ else:
                                patience=20)
     
     #create a checkpoint callback
-    filepath="/dltraining/checkpoints/best_checkpoint.hdf5"
+    filepath="/dltraining/checkpoints/"
     checkpt = ModelCheckpoint(filepath+"best_checkpoint.hdf5", 
                               monitor='loss',
                               verbose=1,
