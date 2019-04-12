@@ -48,8 +48,8 @@ if [ $VOLUME_ID ]; then
 		chown -R ubuntu: ml_forecast 
 		cd ml_forecast
 
-        sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/actiavte tensorflow_p36; python pre_proc.py; python
-        Enc_Dec_LSTM.py"
+        sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/actiavte tensorflow_p36; python src/pre_proc.py; python
+        src/Enc_Dec_LSTM.py"
 		# Initiate training using the tensorflow_36 conda environment
 		#sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p36; python ec2_spot_keras_training.py"
 fi
